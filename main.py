@@ -1,3 +1,24 @@
+import os
+from http.server import HTTPServer, BaseHTTPRequestHandler
+import threading
+
+# Мини-сервер для ответа Render, чтобы он не думал, что бот упал
+class SimpleHandler(BaseHTTPRequestHandler):
+    def do_GET(self):
+        self.send_response(200)
+        self.end_headers()
+        self.wfile.write(b"Bot is running!")
+
+def run_web_server():
+    port = int(os.environ.get("PORT", 10000))
+    server = HTTPServer(("0.0.0.0", port), SimpleHandler)
+    server.serve_forever()
+
+# Запускаем веб-сервер в отдельном потоке, чтобы он не мешал боту
+threading.Thread(target=run_web_server, daemon=True).start()
+
+# ДАЛЬШЕ ИДЕТ ВАШ ОБЫЧНЫЙ КОД БОТА...
+
 import asyncio
 import os
 from aiogram import Bot
